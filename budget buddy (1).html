@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BUDGET BUDDY AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA (optional, you can keep your own manifest if already added) -->
+  <meta name="theme-color" content="#38bdf8" />
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #22c55e;
+      --border-soft: #1f2937;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.6);
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 650px;
+      line-height: 1.4;
+    }
+
+    .pill-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-soft);
+      color: var(--muted);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.1), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.95), #020617);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      padding: 18px 18px 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      background: #020617;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 40px;
+      max-height: 120px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 12px 30px rgba(56, 189, 248, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(56, 189, 248, 0.6);
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--muted);
+      border: 1px solid var(--border-soft);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-1px);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+    }
+
+    .spacer {
+      height: 6px;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .summary-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 10px 11px;
+    }
+
+    .summary-label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .summary-value.negative {
+      color: var(--danger);
+    }
+
+    .summary-value.positive {
+      color: var(--success);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .ai-box {
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 55%),
+                  rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 12px 12px 10px;
+      margin-top: 6px;
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .ai-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+    }
+
+    .ai-body {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .ai-highlight {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .ai-list {
+      margin-top: 4px;
+      padding-left: 14px;
+    }
+
+    .ai-list li {
+      margin-bottom: 3px;
+    }
+
+    .transactions {
+      margin-top: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .transaction-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.7fr 0.9fr 1fr 0.4fr;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.78rem;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      margin-bottom: 4px;
+    }
+
+    .transaction-row.header {
+      background: transparent;
+      border: none;
+      font-size: 0.74rem;
+      color: var(--muted);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tag.food { border-color: #fb7185; color: #fecaca; }
+    .tag.travel { border-color: #38bdf8; color: #bae6fd; }
+    .tag.shopping { border-color: #facc15; color: #fef9c3; }
+    .tag.studies { border-color: #4ade80; color: #bbf7d0; }
+    .tag.other { border-color: #a855f7; color: #e9d5ff; }
+
+    .amount {
+      font-weight: 600;
+    }
+
+    .amount.negative { color: var(--danger); }
+
+    .small {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .chart-bar {
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .chart-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    .mt-8 { margin-top: 8px; }
+    .mt-10 { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>
+            Budget Buddy AI
+            <span class="badge">Student-Focused</span>
+          </h1>
+          <p class="subtitle">
+            A simple, AI-assisted tool to help students track small daily expenses, understand their
+            spending patterns, and build better budgeting habits.
+          </p>
+          <div class="pill-row">
+            <span class="pill">Daily & weekly micro-budgeting</span>
+            <span class="pill">Student categories: Food · Travel · Studies</span>
+            <span class="pill">AI-style insights & alerts</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- LEFT: Input + Transactions -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Add Expense</div>
+            <div class="card-subtitle">Log small, everyday expenses in seconds.</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" />
+          </div>
+          <div class="field">
+            <label for="amount">Amount (₹)</label>
+            <input type="number" id="amount" min="1" step="1" placeholder="e.g., 70" />
+          </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category">
+              <option value="Food">Food / Snacks</option>
+              <option value="Travel">Travel</option>
+              <option value="Shopping">Shopping / Personal</option>
+              <option value="Studies">Studies / Stationery</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="note">Short note (optional)</label>
+          <textarea id="note" placeholder="e.g., Maggie in canteen, bus to college"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content: flex-end; gap:8px; align-items:center;">
+          <button type="button" class="btn-ghost btn-sm" id="clearAllBtn">Clear all data</button>
+          <button type="button" class="btn-primary" id="addBtn">
+            + Add Expense
+          </button>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="transactions" id="transactionsContainer">
+          <!-- Header -->
+          <div class="transaction-row header">
+            <div>Date</div>
+            <div>Category</div>
+            <div>Amount (₹)</div>
+            <div>Note</div>
+            <div class="right">X</div>
+          </div>
+          <!-- Rows will be injected here -->
+        </div>
+      </section>
+
+      <!-- RIGHT: Budget, Summary, AI Insights -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Student Budget Overview</div>
+            <div class="card-subtitle">Set a daily & weekly limit and see where money goes.</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="dailyBudget">Daily budget (₹)</label>
+            <input type="number" id="dailyBudget" min="0" step="10" placeholder="e.g., 200" />
+          </div>
+          <div class="field">
+            <label for="weeklyBudget">Weekly budget (₹)</label>
+            <input type="number" id="weeklyBudget" min="0" step="50" placeholder="e.g., 1200" />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+          <button type="button" class="btn-ghost btn-sm" id="saveBudgetBtn">Save budget</button>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-card">
+            <div class="summary-label">Spent today</div>
+            <div class="summary-value" id="spentToday">₹0</div>
+            <div class="chart-bar">
+              <div class="chart-bar-inner" id="barToday"></div>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Spent last 7 days</div>
+            <div class="summary-value" id="spentWeek">₹0</div>
+            <div class="chart-bar">
+              <div class="chart-bar-inner" id="barWeek"></div>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Within budget?</div>
+            <div class="summary-value" id="budgetStatus">–</div>
+            <span class="small" id="budgetHint"></span>
+          </div>
+        </div>
+
+        <div class="mt-10">
+          <span class="chip">AI Insights for Students</span>
+        </div>
+
+        <div class="ai-box mt-8" id="aiBox">
+          <div class="ai-header">
+            <div class="ai-title">
+              <span class="ai-dot"></span>
+              <span>Micro-budget coach</span>
+            </div>
+            <span class="small" id="aiSummaryTag">Listening to your spending...</span>
+          </div>
+          <div class="ai-body" id="aiBody">
+            Start logging your expenses and saving a daily / weekly budget.  
+            This space will show smart, student-friendly insights such as:
+            <ul class="ai-list">
+              <li><span class="ai-highlight">“Food is taking most of your budget today.”</span></li>
+              <li><span class="ai-highlight">“You’re close to crossing your weekly limit.”</span></li>
+              <li><span class="ai-highlight">“Nice! You spent less than planned this week.”</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // --- Data Model ---------------------------------------------------------
+    const STORAGE_KEY = "student_micro_budget_transactions_v1";
+    const BUDGET_KEY = "student_micro_budget_settings_v1";
+
+    let transactions = [];
+    let budgetSettings = {
+      dailyBudget: 0,
+      weeklyBudget: 0,
+    };
+
+    // --- Utilities ----------------------------------------------------------
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "-";
+      return d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+      });
+    }
+
+    function todayISO() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    function daysDiff(dateStr1, dateStr2) {
+      const d1 = new Date(dateStr1);
+      const d2 = new Date(dateStr2);
+      const diff = d1.getTime() - d2.getTime();
+      return diff / (1000 * 60 * 60 * 24);
+    }
+
+    function loadFromStorage() {
+      try {
+        const t = localStorage.getItem(STORAGE_KEY);
+        const b = localStorage.getItem(BUDGET_KEY);
+        if (t) transactions = JSON.parse(t);
+        if (b) budgetSettings = JSON.parse(b);
+      } catch (e) {
+        console.error("Error loading from storage", e);
+      }
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+      localStorage.setItem(BUDGET_KEY, JSON.stringify(budgetSettings));
+    }
+
+    // --- DOM Elements -------------------------------------------------------
+    const dateInput = document.getElementById("date");
+    const amountInput = document.getElementById("amount");
+    const categoryInput = document.getElementById("category");
+    const noteInput = document.getElementById("note");
+    const addBtn = document.getElementById("addBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    const transactionsContainer = document.getElementById("transactionsContainer");
+
+    const dailyBudgetInput = document.getElementById("dailyBudget");
+    const weeklyBudgetInput = document.getElementById("weeklyBudget");
+    const saveBudgetBtn = document.getElementById("saveBudgetBtn");
+
+    const spentTodayEl = document.getElementById("spentToday");
+    const spentWeekEl = document.getElementById("spentWeek");
+    const budgetStatusEl = document.getElementById("budgetStatus");
+    const budgetHintEl = document.getElementById("budgetHint");
+
+    const barTodayEl = document.getElementById("barToday");
+    const barWeekEl = document.getElementById("barWeek");
+
+    const aiBody = document.getElementById("aiBody");
+    const aiSummaryTag = document.getElementById("aiSummaryTag");
+
+    // --- Rendering ----------------------------------------------------------
+    function renderTransactions() {
+      const rows = transactions
+        .slice()
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map((t, index) => {
+          const cssCategory =
+            t.category === "Food"
+              ? "food"
+              : t.category === "Travel"
+              ? "travel"
+              : t.category === "Shopping"
+              ? "shopping"
+              : t.category === "Studies"
+              ? "studies"
+              : "other";
+
+          return `
+          <div class="transaction-row" data-index="${index}">
+            <div>${formatDate(t.date)}</div>
+            <div><span class="tag ${cssCategory}">${t.category}</span></div>
+            <div class="amount negative">₹${t.amount}</div>
+            <div class="small">${t.note || "-"}</div>
+            <div class="right">
+              <button type="button" class="btn-ghost btn-sm" data-delete="${index}">x</button>
+            </div>
+          </div>
+        `;
+        })
+        .join("");
+
+      const header = transactionsContainer.querySelector(".transaction-row.header");
+      transactionsContainer.innerHTML = "";
+      transactionsContainer.appendChild(header);
+      transactionsContainer.insertAdjacentHTML("beforeend", rows);
+
+      transactionsContainer.querySelectorAll("button[data-delete]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.dataset.delete, 10);
+          if (!isNaN(idx)) {
+            transactions.splice(idx, 1);
+            saveToStorage();
+            updateAll();
+          }
+        });
+      });
+    }
+
+    function computeSummary() {
+      const todayStr = todayISO();
+
+      let spentToday = 0;
+      let spentWeek = 0;
+
+      let categoryTotals = {
+        Food: 0,
+        Travel: 0,
+        Shopping: 0,
+        Studies: 0,
+        Other: 0,
+      };
+
+      let smallImpulseCount = 0;
+
+      transactions.forEach((t) => {
+        const diffDays = daysDiff(todayStr, t.date);
+        if (Math.round(diffDays) === 0) {
+          spentToday += t.amount;
+        }
+        if (diffDays <= 6 && diffDays >= 0) {
+          spentWeek += t.amount;
+        }
+        if (t.category in categoryTotals) categoryTotals[t.category] += t.amount;
+        if (t.amount <= 60) smallImpulseCount++;
+      });
+
+      return {
+        spentToday,
+        spentWeek,
+        categoryTotals,
+        smallImpulseCount,
+      };
+    }
+
+    function renderSummary() {
+      const { spentToday, spentWeek } = computeSummary();
+
+      spentTodayEl.textContent = `₹${spentToday}`;
+      spentWeekEl.textContent = `₹${spentWeek}`;
+
+      const dBudget = budgetSettings.dailyBudget || 0;
+      const wBudget = budgetSettings.weeklyBudget || 0;
+
+      let statusText = "Not set";
+      let hint = "Set your daily & weekly limits above.";
+      let statusClass = "";
+
+      if (dBudget > 0 || wBudget > 0) {
+        const todayRatio = dBudget > 0 ? Math.min(spentToday / dBudget, 2) : 0;
+        const weekRatio = wBudget > 0 ? Math.min(spentWeek / wBudget, 2) : 0;
+
+        if ((dBudget > 0 && spentToday > dBudget) || (wBudget > 0 && spentWeek > wBudget)) {
+          statusText = "Over budget";
+          statusClass = "negative";
+          hint = "You’ve crossed your limit. Try to slow down spending tomorrow.";
+        } else if (
+          (dBudget > 0 && spentToday >= 0.8 * dBudget) ||
+          (wBudget > 0 && spentWeek >= 0.8 * wBudget)
+        ) {
+          statusText = "Close to limit";
+          statusClass = "negative";
+          hint = "You’re nearing the limit. Be extra mindful of non-essential spends.";
+        } else if (spentToday === 0 && spentWeek === 0) {
+          statusText = "No data yet";
+          statusClass = "";
+          hint = "Start adding a few expenses to see your patterns.";
+        } else {
+          statusText = "Within budget";
+          statusClass = "positive";
+          hint = "Nice! You’re managing your money within the planned limit.";
+        }
+
+        barTodayEl.style.width = dBudget > 0 ? `${Math.min(todayRatio * 100, 100)}%` : "0%";
+        barWeekEl.style.width = wBudget > 0 ? `${Math.min(weekRatio * 100, 100)}%` : "0%";
+      } else {
+        barTodayEl.style.width = "0%";
+        barWeekEl.style.width = "0%";
+      }
+
+      budgetStatusEl.textContent = statusText;
+      budgetStatusEl.classList.remove("negative", "positive");
+      if (statusClass) budgetStatusEl.classList.add(statusClass);
+      budgetHintEl.textContent = hint;
+    }
+
+    function generateAIInsights() {
+      const { spentToday, spentWeek, categoryTotals, smallImpulseCount } = computeSummary();
+      const dBudget = budgetSettings.dailyBudget || 0;
+      const wBudget = budgetSettings.weeklyBudget || 0;
+
+      // ✅ FIX: avoid Object.values (for older browsers)
+      let total = 0;
+      for (const key in categoryTotals) {
+        if (Object.prototype.hasOwnProperty.call(categoryTotals, key)) {
+          total += categoryTotals[key];
+        }
+      }
+
+      if (transactions.length === 0) {
+        aiSummaryTag.textContent = "Waiting for your first entry";
+        aiBody.innerHTML =
+          "No expenses logged yet. Start by adding a few typical student spends like snacks, travel or stationery. " +
+          "Once there is enough data, this coach will highlight overspending areas and savings opportunities.";
+        return;
+      }
+
+      const insights = [];
+
+      if (dBudget > 0) {
+        if (spentToday > dBudget) {
+          insights.push(
+            `<span class="ai-highlight">Today's spending (₹${spentToday}) is above your daily limit (₹${dBudget}).</span> ` +
+              "Consider cutting 1–2 non-essential items tomorrow to rebalance."
+          );
+        } else if (spentToday >= 0.8 * dBudget) {
+          insights.push(
+            `<span class="ai-highlight">You have used more than 80% of today's budget.</span> Try to avoid impulse buys for the rest of the day.`
+          );
+        } else if (spentToday === 0) {
+          insights.push(
+            "No expenses recorded today yet. This could be a low-spend day, which is great for saving a little extra."
+          );
+        } else {
+          insights.push(
+            `<span class="ai-highlight">You're within today's limit so far.</span> If you keep spending at this pace, you'll stay comfortably under budget.`
+          );
+        }
+      }
+
+      if (wBudget > 0) {
+        if (spentWeek > wBudget) {
+          insights.push(
+            `<span class="ai-highlight">Your weekly spending has crossed the set limit.</span> Next week, you may want to lower eating-out or travel frequency.`
+          );
+        } else if (spentWeek >= 0.8 * wBudget) {
+          insights.push(
+            `<span class="ai-highlight">Weekly spending is close to the limit.</span> Try to keep the remaining days low-spend to avoid slipping over.`
+          );
+        } else {
+          insights.push(
+            `Weekly spending is currently under control. This shows a fairly balanced pattern for the last 7 days.`
+          );
+        }
+      }
+
+      if (total > 0) {
+        const foodShare = (categoryTotals.Food / total) * 100;
+        const travelShare = (categoryTotals.Travel / total) * 100;
+        const studiesShare = (categoryTotals.Studies / total) * 100;
+
+        if (foodShare > 40) {
+          insights.push(
+            `<span class="ai-highlight">Food & snacks take about ${foodShare.toFixed(
+              0
+            )}% of your total spending.</span> ` +
+              "Consider planning home snacks or cheaper canteen options a few days a week."
+          );
+        }
+
+        if (travelShare > 30) {
+          insights.push(
+            `<span class="ai-highlight">Travel accounts for roughly ${travelShare.toFixed(
+              0
+            )}% of your budget.</span> Look at shared transport, passes or combining trips to reduce costs.`
+          );
+        }
+
+        if (studiesShare < 10 && total > 300) {
+          insights.push(
+            "Only a small portion of your budget is going towards studies or stationery. " +
+              "If there are upcoming exams or projects, consider reserving a small amount for those needs."
+          );
+        }
+      }
+
+      if (smallImpulseCount >= 5) {
+        insights.push(
+          `<span class="ai-highlight">There are many small (≤ ₹60) transactions.</span> These are often impulse snacks or tiny pickups that silently eat into your budget.`
+        );
+      }
+
+      if (insights.length === 0) {
+        insights.push(
+          "Your spending pattern currently looks quite balanced. Keep tracking daily so that this coach can alert you quickly if any category starts dominating your budget."
+        );
+      }
+
+      aiSummaryTag.textContent = "Insights based on your last few days";
+      aiBody.innerHTML =
+        "<ul class='ai-list'>" +
+        insights.map((i) => `<li>${i}</li>`).join("") +
+        "</ul>";
+    }
+
+    function updateAll() {
+      renderTransactions();
+      renderSummary();
+      generateAIInsights();
+    }
+
+    // --- Event Handlers -----------------------------------------------------
+    addBtn.addEventListener("click", () => {
+      const dateVal = dateInput.value || todayISO();
+      const amountVal = parseFloat(amountInput.value);
+      const categoryVal = categoryInput.value;
+      const noteVal = noteInput.value.trim();
+
+      if (!amountVal || amountVal <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      const tx = {
+        date: dateVal,
+        amount: Math.round(amountVal),
+        category: categoryVal,
+        note: noteVal,
+      };
+
+      transactions.push(tx);
+      saveToStorage();
+      amountInput.value = "";
+      noteInput.value = "";
+      updateAll();
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      if (confirm("This will remove all saved expenses and budget settings. Continue?")) {
+        transactions = [];
+        budgetSettings = { dailyBudget: 0, weeklyBudget: 0 };
+        saveToStorage();
+        dailyBudgetInput.value = "";
+        weeklyBudgetInput.value = "";
+        updateAll();
+      }
+    });
+
+    saveBudgetBtn.addEventListener("click", () => {
+      const d = parseFloat(dailyBudgetInput.value) || 0;
+      const w = parseFloat(weeklyBudgetInput.value) || 0;
+      budgetSettings.dailyBudget = d;
+      budgetSettings.weeklyBudget = w;
+      saveToStorage();
+      updateAll();
+    });
+
+    // --- Init ---------------------------------------------------------------
+    function init() {
+      loadFromStorage();
+      dateInput.value = todayISO();
+      if (budgetSettings.dailyBudget) {
+        dailyBudgetInput.value = budgetSettings.dailyBudget;
+      }
+      if (budgetSettings.weeklyBudget) {
+        weeklyBudgetInput.value = budgetSettings.weeklyBudget;
+      }
+      updateAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
