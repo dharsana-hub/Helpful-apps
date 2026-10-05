@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — Offline Calendar & Study Timer</title>
+<style>
+:root{--bg:#f4f0ee;--panel:#fffdfb;--cell:#fffefa;--text:#403a42;--muted:#948b95;--line:#e7dedb;--accent:#b996d7;--shadow:0 18px 55px rgba(70,55,70,.10)}
+body.dark{--bg:#15131a;--panel:#211e27;--cell:#26222d;--text:#f0ebf1;--muted:#aaa2ae;--line:#39333f;--accent:#a47bc9;--shadow:0 18px 55px rgba(0,0,0,.28)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}body.serif{font-family:Georgia,serif}body.hand{font-family:"Comic Sans MS","Segoe Print",cursive}
+button,input,textarea,select{font:inherit}button,select{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;padding:9px 12px;cursor:pointer}button:hover{filter:brightness(.97)}
+.app{min-height:100vh;padding:22px 28px}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.title h1{margin:0;font-size:30px}.title p{margin:4px 0;color:var(--muted)}.tools{display:flex;gap:8px}
+.main{display:grid;grid-template-columns:minmax(760px,1fr) 315px;gap:16px;align-items:start}.calendar-shell,.timer{background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.monthbar{height:68px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px;border-bottom:1px solid var(--line)}.monthbar h2{margin:0;text-align:center;font-size:27px}.left{display:flex;gap:7px}.right{text-align:right}.nav{font-size:19px;width:42px;height:40px;padding:0}
+.weekdays,.grid{display:grid;grid-template-columns:repeat(7,1fr)}.weekdays div{padding:12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;font-weight:750;color:var(--muted)}.weekdays div:last-child{border-right:0}
+.day{height:165px;background:var(--cell);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 10px;position:relative;cursor:pointer;overflow:hidden}.day:nth-child(7n){border-right:0}.day:hover{background:rgba(185,150,215,.09)}.day.other{opacity:.38}.num{display:inline-flex;width:28px;height:28px;border-radius:50%;align-items:center;justify-content:center;font-weight:750;font-size:13px}.today .num{background:var(--accent);color:white}.sticker{position:absolute;right:10px;top:9px;font-size:21px}.events{margin-top:7px;display:flex;flex-direction:column;gap:5px;max-height:112px;overflow:hidden}.tag{padding:6px 7px;border-radius:8px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.done{background:#cbe8cf;color:#34533b}.skip{background:#ffd9db;color:#6c3d42}.holiday{background:#ffe8a7;color:#66511d}.note{background:#dce8ff;color:#3e5377}body.dark .done{background:#315b3d;color:#dff4e2}body.dark .skip{background:#633c42;color:#ffe2e4}body.dark .holiday{background:#665326;color:#ffeeb7}body.dark .note{background:#344a70;color:#e1ebff}
+.legend{display:flex;gap:7px;padding:10px 2px;color:var(--muted);font-size:11px}.legend span{padding:5px 8px;border-radius:8px}
+.timer{padding:20px;position:sticky;top:18px}.timer h2{margin:0 0 4px;font-size:22px}.timer .sub{color:var(--muted);font-size:12px}.timer-display{font-variant-numeric:tabular-nums;text-align:center;font-size:62px;font-weight:800;letter-spacing:2px;margin:26px 0 18px}.timer-mode{text-align:center;color:var(--muted);font-size:12px;margin-bottom:12px}.duration{display:flex;gap:7px}.duration input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.timer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.start{background:var(--accent);color:white;border-color:transparent}.reset{grid-column:1/-1}.session-info{margin-top:17px;border-top:1px solid var(--line);padding-top:15px;font-size:12px;color:var(--muted);line-height:1.7}.session-info strong{color:var(--text);font-size:16px}.timer-log{margin-top:15px;max-height:130px;overflow:auto}.log-item{padding:7px 0;border-bottom:1px solid var(--line);font-size:11px}
+.overlay{display:none;position:fixed;inset:0;background:#0003;z-index:10}.overlay.open{display:block}.panel{position:fixed;right:0;top:0;width:420px;height:100vh;background:var(--panel);border-left:1px solid var(--line);z-index:11;padding:25px;transform:translateX(100%);transition:.25s;overflow:auto}.panel.open{transform:translateX(0)}.close{float:right;border:0;background:transparent;font-size:25px}.panel h3{margin:0 0 4px;font-size:23px}.sub{color:var(--muted);font-size:12px}label{display:block;margin:18px 0 7px;font-size:12px;font-weight:750;color:var(--muted)}input,textarea,select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}textarea{height:110px;resize:vertical}.status{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status button.active{outline:3px solid var(--accent)}.stickers{display:flex;flex-wrap:wrap;gap:6px}.stickers button{font-size:21px;padding:7px 10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}.primary{background:var(--accent);color:white;border-color:transparent}
+@media(max-width:1100px){.main{grid-template-columns:1fr}.timer{position:relative;top:0}.day{height:145px}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header"><div class="title"><h1>✦ Luna Calendar</h1><p>Offline calendar + study timer</p></div>
+<div class="tools"><button onclick="toggleDark()">☾ Theme</button><select id="font" onchange="setFont(this.value)"><option value="modern">Modern</option><option value="serif">Elegant Serif</option><option value="hand">Handwritten</option></select><button onclick="today()">Today</button></div></div>
+
+<div class="main">
+<section>
+<div class="calendar-shell">
+<div class="monthbar"><div class="left"><button class="nav" onclick="month(-1)">←</button><button class="nav" onclick="month(1)">→</button></div><h2 id="monthTitle"></h2><div class="right"><button onclick="clearMonth()">Clear month</button></div></div>
+<div class="weekdays"><div>SUNDAY</div><div>MONDAY</div><div>TUESDAY</div><div>WEDNESDAY</div><div>THURSDAY</div><div>FRIDAY</div><div>SATURDAY</div></div>
+<div id="grid" class="grid"></div></div>
+<div class="legend"><span class="done">✓ Done</span><span class="skip">↷ Skipped</span><span class="holiday">☀ Holiday</span><span class="note">✎ Note</span><span id="stats" style="margin-left:auto"></span></div>
+</section>
+
+<aside class="timer">
+<h2>⏱ Study Timer</h2><div class="sub">Works completely offline</div>
+<div class="timer-mode" id="timerMode">Study session</div>
+<div class="timer-display" id="display">25:00</div>
+<div class="duration"><input id="minutes" type="number" min="1" max="240" value="25"><button onclick="setDuration()">Set</button></div>
+<div class="timer-actions"><button class="start" id="startBtn" onclick="toggleTimer()">▶ Start</button><button onclick="pauseTimer()">⏸ Pause</button><button class="reset" onclick="resetTimer()">↻ Reset</button></div>
+<div class="session-info">Today's completed study time<br><strong id="todayTotal">0 min</strong><br><br>Sessions completed: <strong id="sessionCount">0</strong></div>
+<div class="timer-log" id="log"></div>
+</aside>
+</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<aside class="panel" id="panel"><button class="close" onclick="closePanel()">×</button><h3 id="dateTitle">Day</h3><div class="sub">Everything is saved locally on this device.</div>
+<label>STATUS</label><div class="status"><button id="done" onclick="status('done')">✓ Done</button><button id="skip" onclick="status('skip')">↷ Skip</button><button id="holiday" onclick="status('holiday')">☀ Holiday</button><button id="clearStatus" onclick="status('')">○ Clear</button></div>
+<label>WHAT DID YOU DO?</label><input id="note" placeholder="e.g. Finance study, assignment, gym">
+<label>DETAILED NOTE</label><textarea id="details" placeholder="Write anything you want to remember..."></textarea>
+<label>STICKER</label><div class="stickers"><button onclick="sticker('🌸')">🌸</button><button onclick="sticker('✨')">✨</button><button onclick="sticker('💗')">💗</button><button onclick="sticker('📚')">📚</button><button onclick="sticker('🎯')">🎯</button><button onclick="sticker('☕')">☕</button><button onclick="sticker('🌙')">🌙</button><button onclick="sticker('🦋')">🦋</button><button onclick="sticker('🔥')">🔥</button><button onclick="sticker('🎉')">🎉</button><button onclick="sticker('🏆')">🏆</button><button onclick="sticker('')">×</button></div>
+<label>DAY COLOUR</label><select id="color"><option value="">Default</option><option value="pink">Pastel Pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="peach">Peach</option><option value="blue">Baby Blue</option><option value="dark">Dark</option></select>
+<div class="actions"><button class="primary" onclick="saveDay()">Save day</button><button onclick="deleteDay()">Delete entry</button></div>
+</aside>
+
+<script>
+let view=new Date(),selected=null,entries=JSON.parse(localStorage.getItem("lunaOfflineCalendar")||"{}");
+let timerSeconds=1500,initialSeconds=1500,timer=null,running=false;
+let sessions=JSON.parse(localStorage.getItem("lunaStudySessions")||"[]");
+const colors={pink:"#ffdce7",lavender:"#e8dcff",mint:"#d9f3e7",peach:"#ffe2ce",blue:"#dceaff",dark:"#51495a"};
+
+function key(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function persist(){localStorage.setItem("lunaOfflineCalendar",JSON.stringify(entries))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function render(){let y=view.getFullYear(),m=view.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-first.getDay());document.getElementById("monthTitle").textContent=view.toLocaleDateString(undefined,{month:"long",year:"numeric"});let g=document.getElementById("grid");g.innerHTML="";let marked=0,done=0,skip=0,hol=0;
+for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let k=key(d),e=entries[k]||{};if(e.status||e.note||e.details||e.sticker||e.color)marked++;if(e.status==="done")done++;if(e.status==="skip")skip++;if(e.status==="holiday")hol++;let c=document.createElement("div");c.className="day"+(d.getMonth()!=m?" other":"")+(k===key(new Date())?" today":"");if(e.color)c.style.background=colors[e.color];c.onclick=()=>openPanel(k,d);let t="";if(e.status)t+=`<div class="tag ${e.status}">${e.status==="done"?"✓ Done":e.status==="skip"?"↷ Skipped":"☀ Holiday"}</div>`;if(e.note)t+=`<div class="tag note">✎ ${esc(e.note)}</div>`;if(e.details)t+=`<div class="tag note">⋯ ${esc(e.details)}</div>`;c.innerHTML=`<span class="num">${d.getDate()}</span>${e.sticker?`<span class="sticker">${e.sticker}</span>`:""}<div class="events">${t}</div>`;g.appendChild(c)}
+document.getElementById("stats").textContent=`${marked} marked • ${done} done • ${skip} skipped • ${hol} holidays`;updateTimerStats()}
+function openPanel(k,d){selected=k;let e=entries[k]||{};document.getElementById("dateTitle").textContent=d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"});document.getElementById("note").value=e.note||"";document.getElementById("details").value=e.details||"";document.getElementById("color").value=e.color||"";setStatusButtons(e.status||"");document.getElementById("panel").classList.add("open");document.getElementById("overlay").classList.add("open")}
+function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("overlay").classList.remove("open");selected=null}
+function setStatusButtons(s){["done","skip","holiday","clearStatus"].forEach(x=>document.getElementById(x).classList.remove("active"));document.getElementById(s==="done"?"done":s==="skip"?"skip":s==="holiday"?"holiday":"clearStatus").classList.add("active")}
+function status(s){if(!selected)return;(entries[selected]??={}).status=s;setStatusButtons(s)}
+function sticker(s){if(!selected)return;(entries[selected]??={}).sticker=s}
+function saveDay(){if(!selected)return;let e=entries[selected]||{};e.note=document.getElementById("note").value.trim();e.details=document.getElementById("details").value.trim();e.color=document.getElementById("color").value;if(!e.status&&!e.note&&!e.details&&!e.sticker&&!e.color)delete entries[selected];else entries[selected]=e;persist();render();closePanel()}
+function deleteDay(){if(selected){delete entries[selected];persist();render();closePanel()}}
+function month(n){view.setMonth(view.getMonth()+n);render()}function today(){view=new Date();render()}
+function clearMonth(){if(!confirm("Delete all entries from this month?"))return;let y=view.getFullYear(),m=view.getMonth();Object.keys(entries).forEach(k=>{let d=new Date(k+"T00:00:00");if(d.getFullYear()===y&&d.getMonth()===m)delete entries[k]});persist();render()}
+function toggleDark(){document.body.classList.toggle("dark");localStorage.setItem("lunaDark",document.body.classList.contains("dark"))}
+function setFont(v){document.body.classList.remove("serif","hand");if(v!=="modern")document.body.classList.add(v);localStorage.setItem("lunaFont",v)}
+
+function formatTime(s){let m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")}
+function showTimer(){document.getElementById("display").textContent=formatTime(timerSeconds)}
+function setDuration(){if(running)return;let m=Math.max(1,Math.min(240,parseInt(document.getElementById("minutes").value)||25));initialSeconds=timerSeconds=m*60;showTimer()}
+function toggleTimer(){if(running){pauseTimer();return}running=true;document.getElementById("startBtn").textContent="⏸ Running";timer=setInterval(()=>{timerSeconds--;showTimer();if(timerSeconds<=0)completeSession()},1000)}
+function pauseTimer(){if(!running)return;clearInterval(timer);timer=null;running=false;document.getElementById("startBtn").textContent="▶ Start"}
+function resetTimer(){pauseTimer();timerSeconds=initialSeconds;showTimer()}
+function completeSession(){clearInterval(timer);timer=null;running=false;timerSeconds=0;showTimer();let minutes=Math.round(initialSeconds/60),date=key(new Date());sessions.push({date,minutes,time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})});localStorage.setItem("lunaStudySessions",JSON.stringify(sessions));document.getElementById("startBtn").textContent="▶ Start";alert("Study session complete! 🎉");updateTimerStats();render()}
+function updateTimerStats(){let todayKey=key(new Date()),today=sessions.filter(s=>s.date===todayKey),total=today.reduce((a,b)=>a+b.minutes,0);document.getElementById("todayTotal").textContent=total+" min";document.getElementById("sessionCount").textContent=today.length;document.getElementById("log").innerHTML=today.slice(-8).reverse().map(s=>`<div class="log-item">✓ ${s.minutes} min session · ${s.time}</div>`).join("")||"<div class='log-item'>No completed sessions yet.</div>"}
+
+let f=localStorage.getItem("lunaFont")||"modern";document.getElementById("font").value=f;setFont(f);if(localStorage.getItem("lunaDark")==="true")document.body.classList.add("dark");render();showTimer();
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel()});
+</script>
+</body>
+</html>
