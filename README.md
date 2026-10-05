@@ -1,17 +1,13 @@
-cat > README.md << 'EOF'
-# Luna
+# Helpful Apps
 
-An offline calendar app. Plan your days and add events without needing an internet connection.
+Two simple apps. No install needed. Download the file and open it in your browser.
 
-## Features
-- Works fully offline
-- Add, edit, and delete events
-- Your data stays on your device
+## Budget Buddy
+A simple app to track income and expenses and stay on budget.
+Built with VS Code.
+File: `budget buddy (1).html`
 
-## How to run
-
-Download or clone this repo, then double-click `index.html` to open it in your browser. No install needed.
-
-## Built with
-HTML, CSS, and JavaScript. Created with the help of [Claude](https://claude.ai) by Anthropic.
-EOF
+## Luna
+An offline desktop calendar. Plan your days and add events without an internet connection.
+Built with the help of [Claude](https://claude.ai).
+File: `luna_offline_desktop_calendar.html`
